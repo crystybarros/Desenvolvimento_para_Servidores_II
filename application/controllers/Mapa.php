@@ -265,6 +265,217 @@ class Mapa extends CI_Controller {
                     $this->setProfessor($resultado->codProfessor);
 
                     $this->load->model('M_mapa');
-                    $resBanco = $this
-
+                    $resBanco = $this->M_mapa->consultar($this ->getCodigo(),
+                                                        $this ->getDataReserva(),
+                                                        $this ->getCodigoSala(),
+                                                        $this ->getCodigoTurma(),
+                                                        $this ->getProfessor()
+                    );
+                    
+                    if ($resBanco['codigo'] == 1){
+                        $sucesso = true;
+                    } else {
+                        //Captura do erro do Banco
+                        $erros[] = [
+                            'codigo' => $resBanco['codigo'], 
+                            'msg' => $resBanco['msg']
+                        ];
+                    }
                 }
+            }
+        } catch (Exception $e){
+            $erros[] = ['codigo' => 0, 'msg' => 'Erro inesperado: ' . $e->getMessage()];
+        }
+
+        //Monte retorno único
+        if ($sucesso == true) {
+            $retorno = ['sucesso' => $sucesso, 'codigo' => $resBanco['codigo'],
+                        'msg' => $resBanco['msg'], 'dados' => $resBanco['dados']];
+        } else {
+            $retorno = ['sucesso' => $sucesso, 'erros' => $erros];
+        }
+
+        //Tranforme o array em JSON
+        echo json_encode($retorno);
+    }
+
+    public function alterar() {
+        //Atributos para controlar o status de nosso método
+        $erros = [];
+        $sucesso = false;    
+
+        try {
+
+            $json = file_get_contents('php://input');
+            $resultado = json_decode($json);
+            $lista = [
+                "codigo" => '0',
+                "dataReserva" => '0', 
+                "codSala" => '0',
+                "codHorario" => '0',    
+                "codTurma" => '0',
+                "codProfessor" => '0'
+            
+            ];
+            
+            if (verificarParam($resultado, $lista) != 1){
+                //Validar vindos de forma correta do frontend(Helper)
+                $erros[] = ['codigo' => 99, 'msg' => 'Campos inexistentes ou incorretos no FrontEnd.'];
+            } else {
+                //Pelo menos um dos trêm parâmetros precisam ter dados para acontecer a atualização
+                if(trim($resultado->dataReserva) == '' &&
+                trim($resultado->codSala) == '' &&
+                trim($resultado->codHorario) == '' &&
+                trim($resultado->codTurma) == '' &&
+                trim($resultado->codProfessor) == '') {
+                    $erros[] = ['codigo' => 12, 'msg' => 'Pelo menos um parâmetro precisa ser passado apr atualização.'];
+                } else {
+                    //Validar campos quanto ao tipo de dado e tamanho (Helper)
+                    $retornoCodigo = validarDados($resultado->codigo, 'int', true);
+                    $retornoDataReserva = validarDadosConsulta($resultado->dataReserva, 'date');
+                    $retornoCodSala = validarDadosConsulta($resultado->codSala, 'int');
+                    $retornoCodHorario = validarDadosConsulta($resultado->codHorario, 'int');
+                    $retornoCodTurma = validarDadosConsulta($resultado->codTurma, 'int');
+                    $retornoCodProfessor = validarDadosConsulta($resultado->codProfessor, 'int');
+
+                    if($retornoCodigo['codigoHelper'] != 0){
+                        $erros[] = ['codigo' => $retornoCodigo['codigoHelper'], 
+                                    'campo' => 'Código',
+                                    'msg' => $retornoCodigo['msg']];
+                    }
+
+                    if($retornoDataReserva['codigoHelper'] != 0){
+                        $erros[] = ['codigo' => $retornoDataReserva['codigoHelper'], 
+                                    'campo' => 'Data de Reserva',
+                                    'msg' => $retornoDataReserva['msg']];
+                    }
+
+                    if($retornoCodSala ['codigoHelper'] != 0) {
+                        $erros[] = ['codigo' => $retornoCodSala ['codigoHelper']
+                                    'campo' => 'Codigo da Sala',
+                                    'msg' => $retornoCodSala['msg']];
+                    }
+
+                    if ($retornoCodHorario['codigoHelper'] !=0) {
+                        $erros[] = ['codigo' => $retornoCodHorario['codigoHelper'],
+                                    'campo' => 'Codigo do Horário',
+                                    'msg' => $retornoCodHorario['msg']];
+                    }
+
+                    if($retornoCodTurma['codigoHelper'] != 0) {
+                        $erros[] = ['codigo' => $retornoCodProfessor['codigoHelper'],
+                                    'campo' => 'Codigo do Professor',
+                                    'msg' => $retornoCodProfessor['msg']];
+                    }
+
+                    //Se não encontrar erros
+                    if (empty($erros)) {
+                        $this-> setCodigo($resultado->codigo);
+                        $this->setDataReserva($resultado->dataReserva);
+                        $this->setCodigoSala($resultado->codSala);
+                        $this->setCodigoHorario($resultado->codHorario);
+                        $this->setCodigoTurma($resultado->codTurma);
+                        $this->setCodigoProfessor($resultado->codProfessor);
+
+                        $this->load->model('M_mapa');
+                        $resBanco = $this->M_mapa->alterar($this ->getCodigo(),
+                                                        $this ->getDataReserva(),
+                                                        $this ->getCodigoSala(),
+                                                        $this ->getCodigoHorario(),
+                                                        $this ->getCodigoTurma(),
+                                                        $this ->getProfessor()
+                        );
+                        
+                        if ($resBanco['codigo'] == 1){
+                            $sucesso = true;
+                        } else {
+                            //Captura do erro do Banco
+                            $erros[] = [
+                                'codigo' => $resBanco['codigo'], 
+                                'msg' => $resBanco['msg']
+                            ];
+                        }
+                    }
+                }
+            }
+        }catch (Exception $e){
+            $erros[] = ['codigo' => 0, 'msg' => 'Erro inesperado: ' . $e->getMessage()];
+        }
+
+        //Monta retorno único
+        if ($sucesso == true) {
+            $retorno = ['sucesso' => $sucesso, 'codigo' => $resBanco['codigo'],
+                        'msg' => $resBanco['msg']];
+        } else {
+            $retorno = ['sucesso' => $sucesso, 'erros' => $erros];
+        }
+
+        //Tranforme o array em JSON
+        echo json_encode($retorno);
+    }
+
+    public function desativar() {
+        //Atributos para controlar o status de nosso método
+        $erros = [];
+        $sucesso = false;
+
+        try{
+            $json = file_get_contents('php://input');
+            $resultado = json_decode($json);    
+            $lista = [
+                "codigo" => '0'
+            ];
+
+            if (verificarParam($resultado, $lista) != 1){
+                //Validar vindos de forma correta do frontend(Helper)
+                $erros[] = ['codigo' => 99, 'msg' => 'Campos inexistentes ou incorretos no FrontEnd.'];
+            } else {
+                //Validar campos quanto ao tipo de dado e tamanho (Helper)
+                $retornoCodigo = validarDados($resultado->codigo, 'int', true);
+
+                if($retornoCodigo['codigoHelper'] != 0){
+                    $erros[] = ['codigo' => $retornoCodigo['codigoHelper'], 
+                                'campo' => 'Código',
+                                'msg' => $retornoCodigo['msg']];
+                }
+
+                //Se não encontrar erros
+                if (empty($erros)) {
+                    $this-> setCodigo($resultado->codigo);
+
+                    $this->load->model('M_mapa');
+                    $resBanco = $this->M_mapa->desativar($this ->getCodigo()
+                    );
+                    
+                    if ($resBanco['codigo'] == 1){
+                        $sucesso = true;
+                    } else {
+                        //Captura do erro do Banco
+                        $erros[] = [
+                            'codigo' => $resBanco['codigo'], 
+                            'msg' => $resBanco['msg']
+                        ];
+                    }
+                }
+            }
+        }catch (Exception $e){
+            $erros[] = ['codigo' => 0, 'msg' => 'Erro inesperado: ' . $e->getMessage()];
+        }
+
+        //Monta retorno único
+        if ($sucesso == true) {
+            $retorno = ['sucesso' => $sucesso, 'codigo' => $resBanco['codigo'],
+                        'msg' => $resBanco['msg']];
+        } else {
+            $retorno = ['sucesso' => $sucesso, 'erros' => $erros];
+        }
+
+        //Tranforme o array em JSON
+        echo json_encode($retorno);
+    }
+}
+?>
+
+
+
+
