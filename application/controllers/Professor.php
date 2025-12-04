@@ -82,7 +82,8 @@ class Professor extends CI_Controller {
                 $retornoNome = validarDados($resultado->nome, 'string', true);
                 $retornoCPF = validarDados($resultado->cpf, 'string', true);
                 $retornoCPFNroValido = validarCPF($resultado->cpf);
-                $retornoTipo = validarDados($resultado->tipo, 'int', true);
+                $retornoTipo = validarDados($resultado->tipo, 'string', true);
+
 
                 if($retornoNome['codigoHelper'] != 0){
                     $erros[] =  ['codigo' => $retornoNome['codigoHelper'], 
@@ -119,7 +120,7 @@ class Professor extends CI_Controller {
                         $this ->getTipo()
                     );
 
-                    if ($resBanco['codigo'] != 1){
+                    if ($resBanco['codigo'] == 1){
                         $sucesso = true;
                     }else  {
                         $erros[] = ['codigo' => $resBanco['codigo'], 
@@ -166,7 +167,8 @@ class Professor extends CI_Controller {
                 $retornoCodigo = validarDadosConsulta($resultado->codigo, 'int');
                 $retornoNome = validarDadosConsulta($resultado->nome, 'string');
                 $retornoCPF = validarDadosConsulta($resultado->cpf, 'string');
-                $retornoTipo = validarDadosConsulta($resultado->tipo, 'int');
+                $retornoTipo = validarDadosConsulta($resultado->tipo, 'string');
+
 
                 if($retornoCodigo['codigoHelper'] != 0){
                     $erros[] =  ['codigo' => $retornoCodigo['codigoHelper'], 
@@ -269,7 +271,8 @@ class Professor extends CI_Controller {
                     $retornoCodigo = validarDados($resultado->codigo, 'int', true);   
                     $retornoNome = validarDadosConsulta($resultado->nome, 'string');
                     $retornoCPF = validarDadosConsulta($resultado->cpf, 'string');
-                    $retornoTipo = validarDadosConsulta($resultado->tipo, 'int');
+                    $retornoTipo = validarDadosConsulta($resultado->tipo, 'string');
+
 
                     if($retornoCodigo['codigoHelper'] != 0){
                         $erros[] =  ['codigo' => $retornoCodigo['codigoHelper'], 

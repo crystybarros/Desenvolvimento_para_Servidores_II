@@ -74,7 +74,7 @@ class M_professor extends CI_Model {
         return $dados;  
     }
 
-    private function consultaProfessorCod ($codigo) {
+    public function consultaProfessorCod ($codigo) {
         try{
             //Query para consultar dados de acordo com parâmetros passados
             $sql = "select * from tbl_professor where codigo = '$codigo' and estatus = ''";
@@ -104,52 +104,54 @@ class M_professor extends CI_Model {
     }
 
     public function consultar($codigo, $nome, $cpf, $tipo){
-        try{
-            //Query para consultar dados de acordo com parâmetros passados
-            $sql = "select * from tbl_professor where estatus = ''";
+        try {
+            //Query para consultar dados de acordo com parametros passados
+            $sql = "select * from tbl_professor where estatus = '' ";
 
-            if($codigo != ""){
-                $sql = " and codigo = '$codigo'";
+            if (trim($codigo ?? '') != '') {
+                $sql .= " and codigo = $codigo";
             }
 
-            if($nome != ""){
-                $sql = " and nome like '%$nome%'";
+            if (trim($cpf ?? '') != '') {
+                $sql .= " and cpf = '$cpf'";
+            }  
+
+            if (trim($nome ?? '') != '') {
+                $sql .= " and nome like '%$nome%'";
             }
 
-            if($cpf != ""){
-                $sql = " and cpf = '$cpf'";
+            if (trim($tipo ?? '') != '') {
+                $sql .= " and tipo = '$tipo'";
             }
 
-            if($tipo != ""){
-                $sql = " and tipo = '$tipo'";
-            }
 
             $sql = $sql . " order by nome ";
 
-            $retorno = $this -> db -> query($sql);
+            $retorno = $this->db->query($sql);
 
-            //Verifica se a consulta ocorreu com sucesso
-            if($retorno -> num_rows() > 0){
+            //verificar se a consulta ocorreu com sucesso
+            if ($retorno->num_rows() > 0) {
                 $dados = array(
-                    'codigo' => 1, 
+                    'codigo' => 1,
                     'msg' => 'Consulta efetuada com sucesso.',
-                    'dados' => $retorno -> result()
+                    'dados' => $retorno->result()
                 );
-
-            } else {
+            }else{
                 $dados = array(
-                    'codigo' => 11, 
-                    'msg' => 'Professor não encontrado.');
+                    'codigo' => 11,
+                    'msg' => 'Professor não encontrada.'
+                );
             }
-        }catch(Exception $e){
+
+        } catch (Exception $e) {
             $dados = array(
-                'codigo' => 00, 
-                'msg' => 'ATENÇÃO: O seguinte erro aconteceu '.$e->getMessage() 
+                'codigo' => 00,
+                'msg' => 'ATENÇÃO: O seguinte erro aconteceu ->' . $e->getMessage()
             );
-        } 
-        //Envia o array $ddos com as informações tratadas
-        //acima pela estrutura de decisão if
-        return $dados;  
+        }
+        //envia o array $dados com as informaces tratadas
+        //acima pela estrutura de decisao if
+        return $dados;
     }
 
     public function alterar ($codigo, $nome, $cpf, $tipo) {

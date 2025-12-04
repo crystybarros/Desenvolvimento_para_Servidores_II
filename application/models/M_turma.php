@@ -158,7 +158,7 @@ class M_turma extends CI_Model
     }
 
 
-    private function consultaTurmaCod($codigo) {
+    public function consultaTurmaCod($codigo) {
         try {
             //Query para consultar dados de acordo com parâmetros passados            
             $sql = "select * from tbl_turma where codigo = $codigo ";

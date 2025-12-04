@@ -1,5 +1,5 @@
 <?php
-define('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') OR exit ('No direct script access allowed');
 
 class Mapa extends CI_Controller {
 
@@ -19,7 +19,7 @@ class Mapa extends CI_Controller {
     //Atributos privados da classe
     private $codigo;
     private $dataReserva;
-    private $codigo_sala;
+    private $sala;
     private $codigo_horario;
     private $codigo_turma;
     private $codigo_professor;
@@ -37,7 +37,7 @@ class Mapa extends CI_Controller {
         return $this->dataReserva;
     }
     public function getCodigoSala(){
-        return $this->codigo_sala;
+        return $this->sala;
     }
     public function getCodigoHorario(){
         return $this->codigo_horario;
@@ -68,8 +68,8 @@ class Mapa extends CI_Controller {
     public function setDataReserva($dataReservaFront){
         $this->dataReserva = $dataReservaFront;
     }
-    public function setCodigoSala($codigo_salaFront){
-        $this->codigo_sala = $codigo_salaFront;
+    public function setCodigoSala($salaFront){
+        $this->sala = $salaFront;
     }
     public function setCodigoHorario($codigo_horarioFront){
         $this->codigo_horario = $codigo_horarioFront;
@@ -157,15 +157,15 @@ class Mapa extends CI_Controller {
                     $this->setCodigoSala($resultado->codSala);
                     $this->setCodigoHorario($resultado->codHorario);
                     $this->setCodigoTurma($resultado->codTurma);
-                    $this->setProfessor($resultado->codProfessor);
+                    $this->setCodigoProfessor($resultado->codProfessor);
                     
                     $this->load->model('M_mapa');
                     $resBanco = $this->M_mapa->inserir(
-                        $this ->getDataReserva(),
-                        $this ->getCodigoSala(),   
-                        $this ->getCodigoHorario(),
-                        $this ->getCodigoTurma(),
-                        $this ->getProfessor()
+                                                        $this ->getDataReserva(),
+                                                        $this ->getCodigoSala(),
+                                                        $this ->getCodigoHorario(),
+                                                        $this ->getCodigoTurma(),
+                                                        $this ->getProfessor()
                     );
 
                     if ($resBanco['codigo'] == 1){
@@ -186,7 +186,7 @@ class Mapa extends CI_Controller {
 
         //Monta retorno unico
         if ($sucesso == true) {
-            $retorno = ['sucesso' => $suceso, 'codigo' => $resBanco['codigo'],
+            $retorno = ['sucesso' => $sucesso, 'codigo' => $resBanco['codigo'],
                         'msg' => $resBanco['msg']];
         } else {
             $retorno = ['sucesso' => $sucesso, 'erros' => $erros];
@@ -239,7 +239,7 @@ class Mapa extends CI_Controller {
                 }
 
                 if($retornoCodSala ['codigoHelper'] != 0) {
-                    $erros[] = ['codigo' => $retornoCodSala ['codigoHelper']
+                    $erros[] = ['codigo' => $retornoCodSala ['codigoHelper'],
                                 'campo' => 'Codigo da Sala',
                                 'msg' => $retornoCodSala['msg']];
                 }
@@ -261,13 +261,16 @@ class Mapa extends CI_Controller {
                     $this-> setCodigo($resultado->codigo);
                     $this->setDataReserva($resultado->dataReserva);
                     $this->setCodigoSala($resultado->codSala);
+                    $this->setCodigoHorario($resultado->codHorario);
                     $this->setCodigoTurma($resultado->codTurma);
-                    $this->setProfessor($resultado->codProfessor);
+                    $this->setCodigoProfessor($resultado->codProfessor);
+
 
                     $this->load->model('M_mapa');
                     $resBanco = $this->M_mapa->consultar($this ->getCodigo(),
                                                         $this ->getDataReserva(),
                                                         $this ->getCodigoSala(),
+                                                        $this ->getCodigoHorario(),
                                                         $this ->getCodigoTurma(),
                                                         $this ->getProfessor()
                     );
@@ -351,7 +354,7 @@ class Mapa extends CI_Controller {
                     }
 
                     if($retornoCodSala ['codigoHelper'] != 0) {
-                        $erros[] = ['codigo' => $retornoCodSala ['codigoHelper']
+                        $erros[] = ['codigo' => $retornoCodSala ['codigoHelper'],
                                     'campo' => 'Codigo da Sala',
                                     'msg' => $retornoCodSala['msg']];
                     }
